@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Runtime.CompilerServices;
 
 namespace NetworkService.Model
 {
@@ -9,89 +8,44 @@ namespace NetworkService.Model
         private int id;
         private string name;
         private RoadType type;
-        private double val;
+        private double value;
+        private bool isSelected; // Dodato polje za CheckBox
 
         public int ID
         {
             get { return id; }
-            set
-            {
-                if (id != value)
-                {
-                    id = value;
-                    OnPropertyChanged("ID");
-                }
-            }
+            set { id = value; OnPropertyChanged("ID"); }
         }
 
         public string Name
         {
             get { return name; }
-            set
-            {
-                if (name != value)
-                {
-                    name = value;
-                    OnPropertyChanged("Name");
-                }
-            }
+            set { name = value; OnPropertyChanged("Name"); }
         }
 
         public RoadType Type
         {
             get { return type; }
-            set
-            {
-                if (type != value)
-                {
-                    type = value;
-                    OnPropertyChanged("Type");
-                }
-            }
+            set { type = value; OnPropertyChanged("Type"); }
         }
 
         public double Value
         {
-            get { return val; }
-            set
-            {
-                if (val != value)
-                {
-                    val = value;
-                    OnPropertyChanged("Value");
-                    OnPropertyChanged("IsValid");
-                }
-            }
+            get { return value; }
+            set { OnPropertyChanged("Value"); } //?? value = value; OnPropertyChanged("Value");
         }
 
-        public bool IsValid
+        // Dodato svojstvo za štikliranje u tabeli
+        public bool IsSelected
         {
-            get
-            {
-                if (Type == null) return true;
-
-                if (Type.Name == "IA")
-                {
-                    return Value <= 15000;
-                }
-                else if (Type.Name == "IB")
-                {
-                    return Value <= 7000;
-                }
-
-                return true;
-            }
+            get { return isSelected; }
+            set { isSelected = value; OnPropertyChanged("IsSelected"); }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
-
         protected void OnPropertyChanged(string propertyName)
         {
-            var handler = PropertyChanged;
-            if (handler != null)
-            {
-                handler(this, new PropertyChangedEventArgs(propertyName));
-            }
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using PSI_IUIS___PZ2___početni_projekat;
+﻿using NetworkService.ViewModel;
+using PSI_IUIS___PZ2___početni_projekat;
 using System;
 using System.Windows;
 using System.Windows.Input;
@@ -13,29 +14,30 @@ namespace NetworkService
         {
             InitializeComponent();
 
-            // Povezujemo pozadinsku logiku sa prozorom
-            context = new MainWindowViewModel();
-            this.DataContext = context;
+            // Uzimamo DataContext koji je bezbedno kreiran unutar XAML-a
+            context = this.DataContext as MainWindowViewModel;
 
-            // Osluškujemo tastaturu za prečice (Ctrl+E, Ctrl+D, Ctrl+G, Ctrl+H)
+            // Osluškujemo tastaturu za globalne prečice (Ctrl+E, Ctrl+D, Ctrl+G, Ctrl+H)
             this.KeyDown += MainWindow_KeyDown;
         }
 
         private void MainWindow_KeyDown(object sender, KeyEventArgs e)
         {
+            if (context == null) return;
+
             if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
             {
                 if (e.Key == Key.E)
                 {
-                    context.NavigateCommand.Execute("entities");
+                    context.NavigationCommand.Execute("entities");
                 }
                 else if (e.Key == Key.D)
                 {
-                    context.NavigateCommand.Execute("display");
+                    context.NavigationCommand.Execute("display");
                 }
                 else if (e.Key == Key.G)
                 {
-                    context.NavigateCommand.Execute("graph");
+                    context.NavigationCommand.Execute("graph");
                 }
                 else if (e.Key == Key.H)
                 {

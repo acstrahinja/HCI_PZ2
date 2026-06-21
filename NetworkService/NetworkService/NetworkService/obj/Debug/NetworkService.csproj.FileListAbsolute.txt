@@ -31,3 +31,4 @@ C:\Users\strah\Desktop\PSI IUIS - PZ2 - početni projekat\NetworkService\Network
 C:\Users\strah\Desktop\PSI IUIS - PZ2 - početni projekat\NetworkService\NetworkService\NetworkService\obj\Debug\Views\NetworkEntitiesView.g.cs
 C:\Users\strah\Desktop\PSI IUIS - PZ2 - početni projekat\NetworkService\NetworkService\NetworkService\obj\Debug\App.baml
 C:\Users\strah\Desktop\PSI IUIS - PZ2 - početni projekat\NetworkService\NetworkService\NetworkService\obj\Debug\Views\NetworkEntitiesView.baml
+C:\Users\strah\Desktop\PSI IUIS - PZ2 - početni projekat\NetworkService\NetworkService\NetworkService\obj\Debug\GeneratedInternalTypeHelper.g.cs

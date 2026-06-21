@@ -15,38 +15,37 @@ namespace NetworkService.ViewModel
         private RoadType selectedRoadType;
         private RoadEntity selectedRoad;
 
+        // Svojstva za RadioButton pretragu
+        private bool searchByType = true;
+        private bool searchByName = false;
+        private string searchText;
+
         public ObservableCollection<RoadType> RoadTypes { get; set; }
-        public ObservableCollection<RoadEntity> Roads
-        {
-            get { return MainWindowViewModel.Roads; }
-        }
+        public ObservableCollection<RoadEntity> Roads { get; set; } = new ObservableCollection<RoadEntity>();
 
         public ICommand AddRoadCommand { get; set; }
         public ICommand DeleteRoadCommand { get; set; }
+        public ICommand SearchCommand { get; set; }
+        public ICommand ResetSearchCommand { get; set; }
 
-        public string NewRoadId
+        public string NewRoadId { get { return newRoadId; } set { newRoadId = value; OnPropertyChanged("NewRoadId"); } }
+        public string NewRoadName { get { return newRoadName; } set { newRoadName = value; OnPropertyChanged("NewRoadName"); } }
+        public RoadType SelectedRoadType { get { return selectedRoadType; } set { selectedRoadType = value; OnPropertyChanged("SelectedRoadType"); } }
+        public RoadEntity SelectedRoad { get { return selectedRoad; } set { selectedRoad = value; OnPropertyChanged("SelectedRoad"); } }
+
+        public bool SearchByType
         {
-            get { return newRoadId; }
-            set { newRoadId = value; OnPropertyChanged("NewRoadId"); }
+            get { return searchByType; }
+            set { searchByType = value; if (value) SearchByName = false; OnPropertyChanged("SearchByType"); }
         }
 
-        public string NewRoadName
+        public bool SearchByName
         {
-            get { return newRoadName; }
-            set { newRoadName = value; OnPropertyChanged("NewRoadName"); }
+            get { return searchByName; }
+            set { searchByName = value; if (value) SearchByType = false; OnPropertyChanged("SearchByName"); }
         }
 
-        public RoadType SelectedRoadType
-        {
-            get { return selectedRoadType; }
-            set { selectedRoadType = value; OnPropertyChanged("SelectedRoadType"); }
-        }
-
-        public RoadEntity SelectedRoad
-        {
-            get { return selectedRoad; }
-            set { selectedRoad = value; OnPropertyChanged("SelectedRoad"); }
-        }
+        public string SearchText { get { return searchText; } set { searchText = value; OnPropertyChanged("SearchText"); } }
 
         public NetworkEntitiesViewModel()
         {
@@ -58,55 +57,90 @@ namespace NetworkService.ViewModel
 
             AddRoadCommand = new RelayCommand(ExecuteAddRoad);
             DeleteRoadCommand = new RelayCommand(ExecuteDeleteRoad);
+            SearchCommand = new RelayCommand(ExecuteSearch);
+            ResetSearchCommand = new RelayCommand(ExecuteResetSearch);
+
+            RefreshTable();
+        }
+
+        private void RefreshTable()
+        {
+            Roads.Clear();
+            foreach (var r in MainWindowViewModel.Roads) Roads.Add(r);
+        }
+
+        private void ExecuteSearch(object parameter)
+        {
+            if (string.IsNullOrWhiteSpace(SearchText))
+            {
+                RefreshTable();
+                return;
+            }
+
+            string term = SearchText.Trim().ToLower();
+            Roads.Clear();
+
+            foreach (var r in MainWindowViewModel.Roads)
+            {
+                if (SearchByType && r.Type.Name.ToLower() == term)
+                {
+                    Roads.Add(r);
+                }
+                else if (SearchByName && r.Name.ToLower().Contains(term))
+                {
+                    Roads.Add(r);
+                }
+            }
+        }
+
+        private void ExecuteResetSearch(object parameter)
+        {
+            SearchText = string.Empty;
+            RefreshTable();
         }
 
         private void ExecuteAddRoad(object parameter)
         {
             if (string.IsNullOrWhiteSpace(NewRoadId) || string.IsNullOrWhiteSpace(NewRoadName) || SelectedRoadType == null)
             {
-                MessageBox.Show("Sva polja moraju biti ispravno popunjena!", "Greška pri unosu", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("All fields must be filled correctly!", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
             if (!int.TryParse(NewRoadId, out int id))
             {
-                MessageBox.Show("ID mora biti ceo broj!", "Greška pri unosu", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("ID must be an integer number!", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
-            foreach (var r in Roads)
+            foreach (var r in MainWindowViewModel.Roads)
             {
                 if (r.ID == id)
                 {
-                    MessageBox.Show("Objekat sa ovim ID-jem već postoji!", "Greška", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("This ID already exists!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
             }
 
-            RoadEntity newEntity = new RoadEntity
-            {
-                ID = id,
-                Name = NewRoadName,
-                Type = SelectedRoadType,
-                Value = 0
-            };
+            MainWindowViewModel.Roads.Add(new RoadEntity { ID = id, Name = NewRoadName, Type = SelectedRoadType, Value = 0 });
+            RefreshTable();
 
-            Roads.Add(newEntity);
-
-            NewRoadId = string.Empty;
-            NewRoadName = string.Empty;
-            SelectedRoadType = null;
+            NewRoadId = string.Empty; NewRoadName = string.Empty; SelectedRoadType = null;
         }
 
         private void ExecuteDeleteRoad(object parameter)
         {
-            if (SelectedRoad == null)
+            var toRemove = new System.Collections.Generic.List<RoadEntity>();
+            foreach (var r in MainWindowViewModel.Roads) if (r.IsSelected) toRemove.Add(r);
+
+            if (toRemove.Count == 0)
             {
-                MessageBox.Show("Morate selektovati entitet iz tabele za brisanje!", "Upozorenje", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Please check the entities you want to delete!", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
-            Roads.Remove(SelectedRoad);
+            foreach (var r in toRemove) MainWindowViewModel.Roads.Remove(r);
+            RefreshTable();
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
