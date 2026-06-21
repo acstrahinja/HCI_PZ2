@@ -1,28 +1,47 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using PSI_IUIS___PZ2___početni_projekat;
+using System;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace NetworkService
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
+        private MainWindowViewModel context;
+
         public MainWindow()
         {
             InitializeComponent();
+
+            // Povezujemo pozadinsku logiku sa prozorom
+            context = new MainWindowViewModel();
+            this.DataContext = context;
+
+            // Osluškujemo tastaturu za prečice (Ctrl+E, Ctrl+D, Ctrl+G, Ctrl+H)
+            this.KeyDown += MainWindow_KeyDown;
+        }
+
+        private void MainWindow_KeyDown(object sender, KeyEventArgs e)
+        {
+            if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+            {
+                if (e.Key == Key.E)
+                {
+                    context.NavigateCommand.Execute("entities");
+                }
+                else if (e.Key == Key.D)
+                {
+                    context.NavigateCommand.Execute("display");
+                }
+                else if (e.Key == Key.G)
+                {
+                    context.NavigateCommand.Execute("graph");
+                }
+                else if (e.Key == Key.H)
+                {
+                    context.ToggleHelpCommand.Execute(null);
+                }
+            }
         }
     }
 }

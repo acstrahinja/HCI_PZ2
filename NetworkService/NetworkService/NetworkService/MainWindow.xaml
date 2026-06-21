@@ -5,8 +5,45 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NetworkService"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="Traffic Infrastructure Monitoring Simulator" Height="650" Width="950"
+        WindowStartupLocation="CenterScreen" Background="#F4F6F9">
+
     <Grid>
-        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="60"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="30"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Background="#2C3E50" Padding="10,0">
+            <Grid>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Content="Entities (Ctrl+E)" Command="{Binding NavigateCommand}" CommandParameter="entities" 
+                            Width="140" Height="35" Margin="5,0" Background="#34495E" Foreground="White" BorderThickness="0" FontWeight="Bold"/>
+                    <Button Content="Display (Ctrl+D)" Command="{Binding NavigateCommand}" CommandParameter="display" 
+                            Width="140" Height="35" Margin="5,0" Background="#34495E" Foreground="White" BorderThickness="0" FontWeight="Bold"/>
+                    <Button Content="Graph (Ctrl+G)" Command="{Binding NavigateCommand}" CommandParameter="graph" 
+                            Width="140" Height="35" Margin="5,0" Background="#34495E" Foreground="White" BorderThickness="0" FontWeight="Bold"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <TextBlock Text="Help Enabled:" Foreground="White" VerticalAlignment="Center" Margin="0,0,10,0" FontWeight="SemiBold"/>
+                    <CheckBox IsChecked="{Binding IsHelpEnabled}" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <ContentControl Grid.Row="1" Content="{Binding CurrentViewModel}" Margin="15"/>
+
+        <StatusBar Grid.Row="2" Background="#BDC3C7">
+            <StatusBarItem>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="System Active" FontWeight="Medium" Foreground="#2C3E50"/>
+                    <Separator Margin="10,0" Background="#7F8C8D"/>
+                    <TextBlock Text="Help Mode Status: " Foreground="#2C3E50"/>
+                    <TextBlock Text="{Binding IsHelpEnabled}" FontWeight="Bold" Foreground="#16A085"/>
+                </StackPanel>
+            </StatusBarItem>
+        </StatusBar>
     </Grid>
 </Window>

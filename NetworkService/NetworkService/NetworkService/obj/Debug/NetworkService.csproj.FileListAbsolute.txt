@@ -13,3 +13,18 @@ D:\!FTN\!HCI VEZBE\2023-24\PZ2\Visual Studio\NetworkService\NetworkService\Netwo
 D:\!FTN\!HCI VEZBE\2023-24\PZ2\Visual Studio\NetworkService\NetworkService\NetworkService\obj\Debug\NetworkService.csproj.CoreCompileInputs.cache
 D:\!FTN\!HCI VEZBE\2023-24\PZ2\Visual Studio\NetworkService\NetworkService\NetworkService\obj\Debug\NetworkService.exe
 D:\!FTN\!HCI VEZBE\2023-24\PZ2\Visual Studio\NetworkService\NetworkService\NetworkService\obj\Debug\NetworkService.pdb
+C:\Users\strah\Desktop\PSI IUIS - PZ2 - početni projekat\NetworkService\NetworkService\NetworkService\bin\Debug\NetworkService.exe.config
+C:\Users\strah\Desktop\PSI IUIS - PZ2 - početni projekat\NetworkService\NetworkService\NetworkService\bin\Debug\NetworkService.exe
+C:\Users\strah\Desktop\PSI IUIS - PZ2 - početni projekat\NetworkService\NetworkService\NetworkService\bin\Debug\NetworkService.pdb
+C:\Users\strah\Desktop\PSI IUIS - PZ2 - početni projekat\NetworkService\NetworkService\NetworkService\obj\Debug\NetworkService.csproj.AssemblyReference.cache
+C:\Users\strah\Desktop\PSI IUIS - PZ2 - početni projekat\NetworkService\NetworkService\NetworkService\obj\Debug\MainWindow.g.cs
+C:\Users\strah\Desktop\PSI IUIS - PZ2 - početni projekat\NetworkService\NetworkService\NetworkService\obj\Debug\App.g.cs
+C:\Users\strah\Desktop\PSI IUIS - PZ2 - početni projekat\NetworkService\NetworkService\NetworkService\obj\Debug\NetworkService_MarkupCompile.cache
+C:\Users\strah\Desktop\PSI IUIS - PZ2 - početni projekat\NetworkService\NetworkService\NetworkService\obj\Debug\NetworkService_MarkupCompile.lref
+C:\Users\strah\Desktop\PSI IUIS - PZ2 - početni projekat\NetworkService\NetworkService\NetworkService\obj\Debug\MainWindow.baml
+C:\Users\strah\Desktop\PSI IUIS - PZ2 - početni projekat\NetworkService\NetworkService\NetworkService\obj\Debug\NetworkService.g.resources
+C:\Users\strah\Desktop\PSI IUIS - PZ2 - početni projekat\NetworkService\NetworkService\NetworkService\obj\Debug\NetworkService.Properties.Resources.resources
+C:\Users\strah\Desktop\PSI IUIS - PZ2 - početni projekat\NetworkService\NetworkService\NetworkService\obj\Debug\NetworkService.csproj.GenerateResource.cache
+C:\Users\strah\Desktop\PSI IUIS - PZ2 - početni projekat\NetworkService\NetworkService\NetworkService\obj\Debug\NetworkService.csproj.CoreCompileInputs.cache
+C:\Users\strah\Desktop\PSI IUIS - PZ2 - početni projekat\NetworkService\NetworkService\NetworkService\obj\Debug\NetworkService.exe
+C:\Users\strah\Desktop\PSI IUIS - PZ2 - početni projekat\NetworkService\NetworkService\NetworkService\obj\Debug\NetworkService.pdb
