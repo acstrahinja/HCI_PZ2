@@ -9,12 +9,13 @@ using System.Text;
 using System.Threading;
 using System.Windows;
 using System.Windows.Input;
+using NetworkService.ViewModel;
 
 namespace PSI_IUIS___PZ2___početni_projekat
 {
     public class MainWindowViewModel : INotifyPropertyChanged
     {
-        public static ObservableCollection<object> Roads { get; set; } = new ObservableCollection<object>();
+        public static ObservableCollection<NetworkService.Model.RoadEntity> Roads { get; set; } = new ObservableCollection<NetworkService.Model.RoadEntity>();
         private readonly string logFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Log.txt");
 
         private object currentViewModel;
@@ -65,11 +66,14 @@ namespace PSI_IUIS___PZ2___početni_projekat
             switch (destination)
             {
                 case "entities":
-                    MessageBox.Show("Navigacija na: Network Entities View");
+                    // Koristimo pun namespace da budemo 100% sigurni da ga Visual Studio vidi
+                    CurrentViewModel = new NetworkService.ViewModel.NetworkEntitiesViewModel();
                     break;
+
                 case "display":
                     MessageBox.Show("Navigacija na: Network Display View");
                     break;
+
                 case "graph":
                     MessageBox.Show("Navigacija na: Measurement Graph View");
                     break;
