@@ -12,6 +12,11 @@
             <DataTemplate DataType="{x:Type vm:NetworkEntitiesViewModel}">
                 <views:NetworkEntitiesView />
             </DataTemplate>
+
+            <DataTemplate DataType="{x:Type vm:NetworkDisplayViewModel}">
+                <views:NetworkDisplayView />
+            </DataTemplate>
+
         </ResourceDictionary>
     </Application.Resources>
 </Application>

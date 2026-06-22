@@ -9,7 +9,7 @@ namespace NetworkService.Model
         private string name;
         private RoadType type;
         private double value;
-        private bool isSelected; // Dodato polje za CheckBox
+        private bool isSelected;
 
         public int ID
         {
@@ -31,15 +31,26 @@ namespace NetworkService.Model
 
         public double Value
         {
-            get { return value; }
-            set { OnPropertyChanged("Value"); } //?? value = value; OnPropertyChanged("Value");
+            get { return this.value; }
+            set
+            {
+                this.value = value;
+                OnPropertyChanged("Value");
+                // Automatski javljamo tabeli da proveri promenu alarma
+                OnPropertyChanged("IsInAlarm");
+            }
         }
 
-        // Dodato svojstvo za štikliranje u tabeli
         public bool IsSelected
         {
             get { return isSelected; }
             set { isSelected = value; OnPropertyChanged("IsSelected"); }
+        }
+
+        // GRANICA ALARMA: Ako je vrednost veća od 100, vraća true
+        public bool IsInAlarm
+        {
+            get { return this.value > 100.0; }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

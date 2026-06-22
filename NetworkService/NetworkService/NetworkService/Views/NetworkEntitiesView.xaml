@@ -109,6 +109,18 @@
                 </Grid.RowDefinitions>
 
                 <DataGrid Grid.Row="0" ItemsSource="{Binding Roads}" SelectedItem="{Binding SelectedRoad}" CanUserAddRows="False" AutoGenerateColumns="False" Background="White" BorderBrush="#BDC3C7">
+                    <DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsInAlarm}" Value="True">
+                                    <Setter Property="Background" Value="#FFD6D6"/>
+                                    <Setter Property="Foreground" Value="#C0392B"/>
+                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.RowStyle>
+
                     <DataGrid.Columns>
                         <DataGridCheckBoxColumn Header="Select" Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" Width="55"/>
                         <DataGridTextColumn Header="ID" Binding="{Binding ID}" IsReadOnly="True" Width="60"/>
