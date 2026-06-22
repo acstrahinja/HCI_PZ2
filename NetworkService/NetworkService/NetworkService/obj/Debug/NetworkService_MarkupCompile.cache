@@ -10,11 +10,11 @@ none
 false
 DEBUG;TRACE
 C:\Users\strah\Desktop\PSI IUIS - PZ2 - početni projekat\NetworkService\NetworkService\NetworkService\App.xaml
-3-369499130
+4578528793
 
-13-660611125
+151514602982
 13-1310406943
-MainWindow.xaml;Views\NetworkDisplayView.xaml;Views\NetworkEntitiesView.xaml;
+MainWindow.xaml;Views\MeasurementGraphView.xaml;Views\NetworkDisplayView.xaml;Views\NetworkEntitiesView.xaml;
 
 False
 

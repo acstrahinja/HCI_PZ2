@@ -1,0 +1,118 @@
+﻿<UserControl x:Class="NetworkService.Views.MeasurementGraphView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:vm="clr-namespace:NetworkService.ViewModel"
+             mc:Ignorable="d" 
+             d:DesignHeight="550" d:DesignWidth="780" Background="#F4F6F9">
+
+    <UserControl.Resources>
+        <Style x:Key="HelpTextStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#7F8C8D"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding DataContext.IsHelpEnabled, RelativeSource={RelativeSource AncestorType=Window}}" Value="False">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="Historical Measurement Overview (Last 5 Records)" FontSize="16" FontWeight="Bold" Foreground="#2C3E50" Margin="0,0,0,15"/>
+
+        <Border Grid.Row="1" Background="White" CornerRadius="5" Padding="15" BorderBrush="#BDC3C7" BorderThickness="1" Margin="0,0,0,15">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Select a road for display:" FontSize="13" VerticalAlignment="Center" Margin="0,0,10,0" Foreground="#2C3E50" FontWeight="SemiBold"/>
+
+                <ComboBox Width="250" Height="28" VerticalContentAlignment="Center"
+                          ItemsSource="{Binding AllRoads}"
+                          SelectedItem="{Binding SelectedRoad}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="ID: " FontWeight="Bold" Foreground="#7F8C8D"/>
+                                <TextBlock Text="{Binding ID}" Margin="0,0,10,0"/>
+                                <TextBlock Text="Name: " FontWeight="Bold" Foreground="#7F8C8D"/>
+                                <TextBlock Text="{Binding Name}"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+            </StackPanel>
+        </Border>
+
+        <Border Grid.Row="2" Background="White" CornerRadius="5" Padding="40,40,20,20" BorderBrush="#BDC3C7" BorderThickness="1">
+            <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Width="630" Height="260">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="200"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Text="Value" Grid.Row="0" Foreground="#2C3E50" FontWeight="Bold" FontSize="11" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-45,-20,0,0">
+                    <TextBlock.LayoutTransform>
+                        <RotateTransform Angle="-90"/>
+                    </TextBlock.LayoutTransform>
+                </TextBlock>
+
+                <Canvas Grid.Row="0" Height="200" Width="550" HorizontalAlignment="Right">
+                    <Line X1="0" Y1="0" X2="550" Y2="0" Stroke="#E0E0E0" StrokeThickness="1" StrokeDashArray="4 4"/>
+                    <TextBlock Text="150" Canvas.Left="-30" Canvas.Top="-8" FontSize="11" Foreground="#95A5A6"/>
+
+                    <Line X1="0" Y1="66.6" X2="550" Y2="66.6" Stroke="#E74C3C" StrokeThickness="1.5" StrokeDashArray="2 2"/>
+                    <TextBlock Text="100 [ALARM]" Canvas.Left="-75" Canvas.Top="58" FontSize="11" Foreground="#E74C3C" FontWeight="Bold"/>
+
+                    <Line X1="0" Y1="133.3" X2="550" Y2="133.3" Stroke="#E0E0E0" StrokeThickness="1" StrokeDashArray="4 4"/>
+                    <TextBlock Text="50" Canvas.Left="-25" Canvas.Top="125" FontSize="11" Foreground="#95A5A6"/>
+
+                    <Line X1="0" Y1="200" X2="550" Y2="200" Stroke="#2C3E50" StrokeThickness="2"/>
+                    <TextBlock Text="0" Canvas.Left="-20" Canvas.Top="192" FontSize="11" Foreground="#95A5A6"/>
+                </Canvas>
+
+                <ItemsControl Grid.Row="0" ItemsSource="{Binding GraphBars}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Height="200" Width="550">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Canvas Width="80" Height="200" VerticalAlignment="Bottom" Margin="15,0,15,0">
+                                <Ellipse Width="16" Height="16" 
+                                         Fill="{Binding BarColor}" 
+                                         Canvas.Left="32" 
+                                         Canvas.Bottom="{Binding Height}" 
+                                         Margin="0,0,0,-8"/>
+
+                                <TextBlock Text="{Binding Value, StringFormat={}{0:F1}}" 
+                                           Canvas.Left="28" 
+                                           Canvas.Bottom="{Binding Height}" 
+                                           Padding="0,0,0,10" 
+                                           FontSize="11" 
+                                           FontWeight="SemiBold" 
+                                           HorizontalAlignment="Center"/>
+
+                                <TextBlock Text="{Binding LabelX}" Canvas.Top="208" Canvas.Left="15" FontSize="11" FontWeight="SemiBold" Foreground="#34495E"/>
+                            </Canvas>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <TextBlock Grid.Row="1" Text="Time (HH:mm:ss)" Foreground="#2C3E50" FontWeight="Bold" FontSize="11" HorizontalAlignment="Right" Margin="0,28,10,0"/>
+            </Grid>
+        </Border>
+
+        <TextBlock Grid.Row="3" Style="{StaticResource HelpTextStyle}" 
+                   Text="Help: Select any entity from the dropdown menu at the top to display a graphical chart showing the history of the last 5 measurements received from the simulator." 
+                   TextWrapping="Wrap" Margin="5,15,5,5"/>
+    </Grid>
+</UserControl>

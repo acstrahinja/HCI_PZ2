@@ -83,7 +83,7 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <TextBlock Grid.Row="0" Text="Drag&amp;Drop Network" FontSize="14" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,15" Foreground="#2C3E50"/>
+                <TextBlock Grid.Row="0" Text="Drag&amp;Drop network" FontSize="14" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,15" Foreground="#2C3E50"/>
 
                 <ItemsControl Grid.Row="1" ItemsSource="{Binding CanvasSlots}">
                     <ItemsControl.ItemsPanel>
@@ -103,7 +103,7 @@
                                 </Border.InputBindings>
 
                                 <Grid>
-                                    <TextBlock Text="FREE SPACE" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#2C3E50" FontSize="13" FontWeight="SemiBold" Visibility="{Binding IsFreeVisibility}"/>
+                                    <TextBlock Text="FREE" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#2C3E50" FontSize="13" FontWeight="SemiBold" Visibility="{Binding IsFreeVisibility}"/>
 
                                     <Grid Visibility="{Binding IsOccupiedVisibility}" Margin="5">
                                         <Grid.RowDefinitions>

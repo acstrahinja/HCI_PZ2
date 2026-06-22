@@ -7,10 +7,23 @@
         mc:Ignorable="d"
         Title="Traffic Monitoring System v1.0" Height="650" Width="1000" Background="#F4F6F9">
 
-    <!-- DODATO: Ovo povezuje XAML sa tvojim MainWindowViewModel-om -->
     <Window.DataContext>
         <vm:MainWindowViewModel/>
     </Window.DataContext>
+
+    <Window.InputBindings>
+        <KeyBinding Key="E" Modifiers="Ctrl" 
+                    Command="{Binding NavigationCommand}" 
+                    CommandParameter="entities"/>
+
+        <KeyBinding Key="D" Modifiers="Ctrl" 
+                    Command="{Binding NavigationCommand}" 
+                    CommandParameter="display"/>
+
+        <KeyBinding Key="G" Modifiers="Ctrl" 
+                    Command="{Binding NavigationCommand}" 
+                    CommandParameter="graph"/>
+    </Window.InputBindings>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -18,7 +31,6 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- TOP BAR -->
         <Border Grid.Row="0" Background="#2C3E50" Padding="15,0">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -32,25 +44,22 @@
             </Grid>
         </Border>
 
-        <!-- MAIN BODY -->
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="220"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <!-- SIDEBAR NAVIGATION -->
             <Border Grid.Column="0" Background="#34495E" Padding="10">
                 <Grid>
                     <StackPanel>
                         <TextBlock Text="NAVIGATION" Foreground="#ECF0F1" FontSize="12" FontWeight="Bold" Margin="5,10,0,15" Opacity="0.6"/>
 
                         <Button Command="{Binding NavigationCommand}" CommandParameter="entities" Content="Entities (CTRL+E)" Height="40" Margin="0,0,0,5" Background="Transparent" Foreground="White" BorderThickness="0" HorizontalContentAlignment="Left" Padding="10,0"/>
-                        <Button Command="{Binding NavigationCommand}" CommandParameter="display" Content="Network Display" Height="40" Margin="0,0,0,5" Background="Transparent" Foreground="White" BorderThickness="0" HorizontalContentAlignment="Left" Padding="10,0"/>
-                        <Button Command="{Binding NavigationCommand}" CommandParameter="graph" Content="Measurement Graph" Height="40" Margin="0,0,0,5" Background="Transparent" Foreground="White" BorderThickness="0" HorizontalContentAlignment="Left" Padding="10,0"/>
+                        <Button Command="{Binding NavigationCommand}" CommandParameter="display" Content="Network Display (CTRL+D)" Height="40" Margin="0,0,0,5" Background="Transparent" Foreground="White" BorderThickness="0" HorizontalContentAlignment="Left" Padding="10,0"/>
+                        <Button Command="{Binding NavigationCommand}" CommandParameter="graph" Content="Measurement Graph (CTRL+G)" Height="40" Margin="0,0,0,5" Background="Transparent" Foreground="White" BorderThickness="0" HorizontalContentAlignment="Left" Padding="10,0"/>
                     </StackPanel>
 
-                    <!-- Help Toggle Button -->
                     <Button Command="{Binding ToggleHelpCommand}" VerticalAlignment="Bottom" Height="40" BorderThickness="0" FontWeight="Bold">
                         <Button.Style>
                             <Style TargetType="Button">
@@ -69,7 +78,6 @@
                 </Grid>
             </Border>
 
-            <!-- DYNAMIC VIEW CONTENT -->
             <ContentControl Grid.Column="1" Content="{Binding CurrentViewModel}" Margin="10"/>
         </Grid>
     </Grid>

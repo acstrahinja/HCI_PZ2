@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 
 namespace NetworkService.Model
@@ -10,6 +11,9 @@ namespace NetworkService.Model
         private RoadType type;
         private double value;
         private bool isSelected;
+
+        // Istorija čuva parove: stavka 1 je izmerena vrednost (double), stavka 2 je vreme merenja (DateTime)
+        public List<Tuple<double, DateTime>> History { get; set; } = new List<Tuple<double, DateTime>>();
 
         public int ID
         {
@@ -36,8 +40,10 @@ namespace NetworkService.Model
             {
                 this.value = value;
                 OnPropertyChanged("Value");
-                // Automatski javljamo tabeli da proveri promenu alarma
                 OnPropertyChanged("IsInAlarm");
+
+                // Prilikom svakog novog merenja sa simulatora, prosleđujemo vrednost i trenutno vreme
+                AddToHistory(value, DateTime.Now);
             }
         }
 
@@ -47,10 +53,19 @@ namespace NetworkService.Model
             set { isSelected = value; OnPropertyChanged("IsSelected"); }
         }
 
-        // GRANICA ALARMA: Ako je vrednost veća od 100, vraća true
         public bool IsInAlarm
         {
             get { return this.value > 100.0; }
+        }
+
+        // Pomoćna metoda koja osigurava da imamo najviše 5 zapisa u istoriji
+        private void AddToHistory(double newValue, DateTime timestamp)
+        {
+            History.Add(new Tuple<double, DateTime>(newValue, timestamp));
+            if (History.Count > 5)
+            {
+                History.RemoveAt(0); // Uklanja najstariji zapis (FIFO princip)
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

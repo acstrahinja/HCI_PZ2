@@ -17,6 +17,10 @@
                 <views:NetworkDisplayView />
             </DataTemplate>
 
+            <DataTemplate DataType="{x:Type vm:MeasurementGraphViewModel}">
+                <views:MeasurementGraphView />
+            </DataTemplate>
+            
         </ResourceDictionary>
     </Application.Resources>
 </Application>

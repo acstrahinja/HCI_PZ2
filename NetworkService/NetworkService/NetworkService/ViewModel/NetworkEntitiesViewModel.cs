@@ -139,6 +139,36 @@ namespace NetworkService.ViewModel
                 return;
             }
 
+            // ISPRAVLJENO: Sinhronizacija sa ostalim prozorima pre brisanja
+            var mainWindowVM = System.Windows.Application.Current.MainWindow.DataContext as MainWindowViewModel;
+
+            if (mainWindowVM != null)
+            {
+                foreach (var road in toRemove)
+                {
+                    // 1. Čišćenje sa Canvas-a (prolazi kroz 12 slotova)
+                    for (int i = 0; i < 12; i++)
+                    {
+                        if (mainWindowVM.NetworkDisplayVM.CanvasSlots[i].Road != null &&
+                            mainWindowVM.NetworkDisplayVM.CanvasSlots[i].Road.ID == road.ID)
+                        {
+                            mainWindowVM.NetworkDisplayVM.CanvasSlots[i] = new Slot();
+                        }
+                    }
+
+                    // 2. Čišćenje sa grafikona merenja
+                    if (mainWindowVM.MeasurementGraphVM.SelectedRoad != null &&
+                        mainWindowVM.MeasurementGraphVM.SelectedRoad.ID == road.ID)
+                    {
+                        mainWindowVM.MeasurementGraphVM.SelectedRoad = null;
+                    }
+                }
+
+                // Osvežavamo TreeView na mapi pošto su neki entiteti uklonjeni
+                mainWindowVM.NetworkDisplayVM.RefreshTreeView();
+            }
+
+            // Glavno brisanje iz baze i osvežavanje tabele (tvoj postojeći kôd)
             foreach (var r in toRemove) MainWindowViewModel.Roads.Remove(r);
             RefreshTable();
         }
