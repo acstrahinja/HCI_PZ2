@@ -63,7 +63,8 @@ namespace NetworkService.ViewModel
             RefreshTable();
         }
 
-        private void RefreshTable()
+        // Javna metoda kako bi MainWindowViewModel mogao da je pozove ako je potrebno
+        public void RefreshTable()
         {
             Roads.Clear();
             foreach (var r in MainWindowViewModel.Roads) Roads.Add(r);
@@ -125,6 +126,13 @@ namespace NetworkService.ViewModel
             MainWindowViewModel.Roads.Add(new RoadEntity { ID = id, Name = NewRoadName, Type = SelectedRoadType, Value = 0 });
             RefreshTable();
 
+            // REŠENJE: Automatski snimamo novo stanje u sačuvani_putevi.txt
+            var mainWindowVM = Application.Current.MainWindow.DataContext as MainWindowViewModel;
+            if (mainWindowVM != null)
+            {
+                mainWindowVM.SnimiPodatke();
+            }
+
             NewRoadId = string.Empty; NewRoadName = string.Empty; SelectedRoadType = null;
         }
 
@@ -139,8 +147,7 @@ namespace NetworkService.ViewModel
                 return;
             }
 
-            // ISPRAVLJENO: Sinhronizacija sa ostalim prozorima pre brisanja
-            var mainWindowVM = System.Windows.Application.Current.MainWindow.DataContext as MainWindowViewModel;
+            var mainWindowVM = Application.Current.MainWindow.DataContext as MainWindowViewModel;
 
             if (mainWindowVM != null)
             {
@@ -168,9 +175,15 @@ namespace NetworkService.ViewModel
                 mainWindowVM.NetworkDisplayVM.RefreshTreeView();
             }
 
-            // Glavno brisanje iz baze i osvežavanje tabele (tvoj postojeći kôd)
+            // Glavno brisanje iz statičke baze i osvežavanje lokalne tabele
             foreach (var r in toRemove) MainWindowViewModel.Roads.Remove(r);
             RefreshTable();
+
+            // REŠENJE: Automatski ažuriramo fajl na disku nakon brisanja stavki
+            if (mainWindowVM != null)
+            {
+                mainWindowVM.SnimiPodatke();
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

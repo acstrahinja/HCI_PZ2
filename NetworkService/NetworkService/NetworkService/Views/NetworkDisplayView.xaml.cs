@@ -65,6 +65,25 @@ namespace NetworkService.Views
                         if (viewModel.DropCommand.CanExecute(targetIndex))
                         {
                             viewModel.DropCommand.Execute(targetIndex);
+
+                            // REŠENJE BAG-A SA CRVENILOM NA NULI:
+                            // Kada se izvrši Drop, ručno prolazimo kroz slotove i osvežavamo referencu
+                            // To će primorati XAML u tom specifičnom slotu da se instant preračuna i zadrži plavu boju za nulu!
+                            try
+                            {
+                                int index = Convert.ToInt32(targetIndex);
+                                if (index >= 0 && index < viewModel.CanvasSlots.Count)
+                                {
+                                    var trenutniSlot = viewModel.CanvasSlots[index];
+                                    if (trenutniSlot != null && trenutniSlot.Road != null)
+                                    {
+                                        var privremeniPut = trenutniSlot.Road;
+                                        trenutniSlot.Road = null;
+                                        trenutniSlot.Road = privremeniPut;
+                                    }
+                                }
+                            }
+                            catch (Exception) { }
                         }
                     }
                 }

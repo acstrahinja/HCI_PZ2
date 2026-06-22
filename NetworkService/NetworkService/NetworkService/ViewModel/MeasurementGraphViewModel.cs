@@ -67,7 +67,33 @@ namespace NetworkService.ViewModel
                     selectedRoad.PropertyChanged += SelectedRoad_PropertyChanged;
                 }
 
+                // Kada korisnik klikne na drugi put, odmah javljamo XAML-u da promeni tekst i visinu linije alarma
+                OnPropertyChanged("AlarmLimitLabel");
+                OnPropertyChanged("AlarmLimitHeight");
+
                 RefreshGraph();
+            }
+        }
+
+        // NOVO: Vraća dinamički tekst za crvenu liniju (npr. "15000 [ALARM]" ili "7000 [ALARM]")
+        public string AlarmLimitLabel
+        {
+            get
+            {
+                if (SelectedRoad?.Type == null) return "0 [ALARM]";
+                return SelectedRoad.Type.Name == "IA" ? "15000 [ALARM]" : "7000 [ALARM]";
+            }
+        }
+
+        // NOVO: Računa visinu na kojoj crvena linija treba da se iscrta na Canvasu (u pikselima)
+        public double AlarmLimitHeight
+        {
+            get
+            {
+                if (SelectedRoad?.Type == null) return 0;
+                double limit = SelectedRoad.Type.Name == "IA" ? 15000.0 : 7000.0;
+                double scaleFactor = 200.0 / 21000.0; // Prilagođeno T3 skali
+                return limit * scaleFactor;
             }
         }
 
@@ -108,23 +134,34 @@ namespace NetworkService.ViewModel
             }
 
             var history = SelectedRoad.History;
-            double scaleFactor = 200.0 / 150.0;
+
+            // Maksimalna visina prostora na grafu je 200px, a maksimalna vrednost T3 simulatora je 21000
+            double scaleFactor = 200.0 / 21000.0;
+
+            // Forsiramo osvežavanje visine linije alarma kada stignu novi podaci
+            OnPropertyChanged("AlarmLimitHeight");
 
             for (int i = 0; i < 5; i++)
             {
                 if (i < history.Count)
                 {
-                    // Uzimamo vrednost (Item1) i vreme (Item2) iz Tuple-a
                     double val = history[i].Item1;
                     DateTime time = history[i].Item2;
 
                     GraphBars[i].Value = val;
                     GraphBars[i].Height = val * scaleFactor;
-                    GraphBars[i].LabelX = time.ToString("HH:mm:ss"); // Formatirano vreme
+                    GraphBars[i].LabelX = time.ToString("HH:mm:ss");
 
-                    GraphBars[i].BarColor = val > 100.0 ?
-                        new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E74C3C")) :
-                        new SolidColorBrush((Color)ColorConverter.ConvertFromString("#3498DB"));
+                    // ISPRAVLJENO PREMA SPECIFIKACIJI ZA T3: Provera alarma zavisi od tipa puta (IA ili IB)
+                    bool isAlarm = false;
+                    if (SelectedRoad.Type != null)
+                    {
+                        isAlarm = SelectedRoad.Type.Name == "IA" ? val > 15000.0 : val > 7000.0;
+                    }
+
+                    GraphBars[i].BarColor = isAlarm ?
+                        new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E74C3C")) : // Crvena za alarm
+                        new SolidColorBrush((Color)ColorConverter.ConvertFromString("#3498DB"));  // Plava za normalno stanje
                 }
                 else
                 {

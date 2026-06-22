@@ -65,16 +65,26 @@
 
                 <Canvas Grid.Row="0" Height="200" Width="550" HorizontalAlignment="Right">
                     <Line X1="0" Y1="0" X2="550" Y2="0" Stroke="#E0E0E0" StrokeThickness="1" StrokeDashArray="4 4"/>
-                    <TextBlock Text="150" Canvas.Left="-30" Canvas.Top="-8" FontSize="11" Foreground="#95A5A6"/>
+                    <TextBlock Text="21000" Canvas.Left="-40" Canvas.Top="-8" FontSize="11" Foreground="#95A5A6"/>
 
-                    <Line X1="0" Y1="66.6" X2="550" Y2="66.6" Stroke="#E74C3C" StrokeThickness="1.5" StrokeDashArray="2 2"/>
-                    <TextBlock Text="100 [ALARM]" Canvas.Left="-75" Canvas.Top="58" FontSize="11" Foreground="#E74C3C" FontWeight="Bold"/>
+                    <Line X1="0" Y1="66.6" X2="550" Y2="66.6" Stroke="#E0E0E0" StrokeThickness="1" StrokeDashArray="4 4"/>
+                    <TextBlock Text="14000" Canvas.Left="-40" Canvas.Top="58" FontSize="11" Foreground="#95A5A6"/>
 
                     <Line X1="0" Y1="133.3" X2="550" Y2="133.3" Stroke="#E0E0E0" StrokeThickness="1" StrokeDashArray="4 4"/>
-                    <TextBlock Text="50" Canvas.Left="-25" Canvas.Top="125" FontSize="11" Foreground="#95A5A6"/>
+                    <TextBlock Text="7000" Canvas.Left="-35" Canvas.Top="125" FontSize="11" Foreground="#95A5A6"/>
 
                     <Line X1="0" Y1="200" X2="550" Y2="200" Stroke="#2C3E50" StrokeThickness="2"/>
                     <TextBlock Text="0" Canvas.Left="-20" Canvas.Top="192" FontSize="11" Foreground="#95A5A6"/>
+
+                    <Line X1="0" X2="550" 
+                          Stroke="#E74C3C" StrokeThickness="1.5" StrokeDashArray="2 2"
+                          Canvas.Bottom="{Binding AlarmLimitHeight}"/>
+
+                    <TextBlock Text="{Binding AlarmLimitLabel}" 
+                               Canvas.Left="-85" 
+                               Canvas.Bottom="{Binding AlarmLimitHeight}" 
+                               Margin="0,0,0,-6"
+                               FontSize="11" Foreground="#E74C3C" FontWeight="Bold"/>
                 </Canvas>
 
                 <ItemsControl Grid.Row="0" ItemsSource="{Binding GraphBars}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Height="200" Width="550">
@@ -94,7 +104,7 @@
                                          Margin="0,0,0,-8"/>
 
                                 <TextBlock Text="{Binding Value, StringFormat={}{0:F1}}" 
-                                           Canvas.Left="28" 
+                                           Canvas.Left="18" Width="44"
                                            Canvas.Bottom="{Binding Height}" 
                                            Padding="0,0,0,10" 
                                            FontSize="11" 

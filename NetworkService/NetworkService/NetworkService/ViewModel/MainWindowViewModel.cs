@@ -5,8 +5,11 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Threading; // Potrebno za DispatcherTimer
 using System.IO;
+using System.Net;
+using System.Net.Sockets;
+using System.Text;
+using System.Threading;
 
 namespace NetworkService.ViewModel
 {
@@ -14,18 +17,17 @@ namespace NetworkService.ViewModel
     {
         private object currentViewModel;
         private bool isHelpEnabled = true;
-        private DispatcherTimer simulationTimer;
-        private Random random = new Random();
-
-        // Polje koje čuva dinamičku putanju do jedinstvenog fajla za trenutnu sesiju
+        private TcpListener server;
+        private Thread listenThread;
         private string jedinstvenaPutanjaLoga;
 
-        // 1. Instance ViewModela kreiramo jednom da bi pamtile stanje pri menjanju tabova
+        // Putanja za čuvanje entiteta unutar bin folder-a aplikacije
+        private readonly string putanjaBazeEntiteta = AppDomain.CurrentDomain.BaseDirectory + "sačuvani_putevi.txt";
+
         public NetworkEntitiesViewModel NetworkEntitiesVM { get; set; }
         public NetworkDisplayViewModel NetworkDisplayVM { get; set; }
         public MeasurementGraphViewModel MeasurementGraphVM { get; set; }
 
-        // Globalna statička lista u kojoj se čuvaju svi putevi (entiteti) u aplikaciji
         public static ObservableCollection<RoadEntity> Roads { get; set; } = new ObservableCollection<RoadEntity>();
 
         public ICommand NavigationCommand { get; set; }
@@ -53,37 +55,91 @@ namespace NetworkService.ViewModel
 
         public MainWindowViewModel()
         {
-            // Inicijalizacija komandi
             NavigationCommand = new RelayCommand(ExecuteNavigation);
             ToggleHelpCommand = new RelayCommand(ExecuteToggleHelp);
 
-            // 2. Kreiramo sve ViewModele odmah na početku
             NetworkEntitiesVM = new NetworkEntitiesViewModel();
             NetworkDisplayVM = new NetworkDisplayViewModel();
             MeasurementGraphVM = new MeasurementGraphViewModel();
 
-            // Početni ekran je Network Entities
             CurrentViewModel = NetworkEntitiesVM;
 
-            // KREIRANJE JEDINSTVENOG FAJLA NA STARTU
+            // 1. Kreiramo čist log fajl pri startu aplikacije
             napraviLog();
 
-            // POKRETANJE SIMULATORA MERENJA
-            StartSimulation();
+            // 2. Pokrećemo mrežni server na portu koji simulator traži
+            StartServer();
+
+            // 3. Učitavamo prethodno sačuvane puteve sa diska
+            UcitajPodatke();
         }
 
-        // FUNKCIJA KOJA GENERIŠE JEDINSTVENO IME I KREIRA FAJL U BIN FOLDERU
+        // JAVNA METODA ZA SNIMANJE TRENUTNOG STANJA U FAJL
+        public void SnimiPodatke()
+        {
+            try
+            {
+                using (StreamWriter writer = new StreamWriter(putanjaBazeEntiteta, false))
+                {
+                    foreach (var road in Roads)
+                    {
+                        string tipNaziv = (road.Type != null) ? road.Type.Name : "IA";
+                        writer.WriteLine($"{road.ID}|{road.Name}|{tipNaziv}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Greška pri čuvanju entiteta: {ex.Message}");
+            }
+        }
+
+        // METODA ZA AUTOMATSKO UČITAVANJE PRI STARTU
+        private void UcitajPodatke()
+        {
+            if (!File.Exists(putanjaBazeEntiteta)) return;
+
+            try
+            {
+                string[] linije = File.ReadAllLines(putanjaBazeEntiteta);
+                Roads.Clear();
+
+                foreach (string linija in linije)
+                {
+                    if (string.IsNullOrWhiteSpace(linija)) continue;
+
+                    string[] delovi = linija.Split('|');
+                    if (delovi.Length == 3)
+                    {
+                        int id = int.Parse(delovi[0]);
+                        string name = delovi[1];
+                        string tipNaziv = delovi[2];
+
+                        string putanjaIkonice = tipNaziv == "IA" ? "Slike/road_ia.png" : "Slike/road_ib.png";
+                        RoadType tip = new RoadType(tipNaziv, putanjaIkonice);
+
+                        Roads.Add(new RoadEntity { ID = id, Name = name, Type = tip, Value = 0 });
+                    }
+                }
+
+                if (NetworkEntitiesVM != null)
+                {
+                    NetworkEntitiesVM.RefreshTable();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Greška pri učitavanju entiteta: {ex.Message}");
+            }
+        }
+
         private void napraviLog()
         {
             try
             {
-                // Pravimo vremenski sufiks (npr. Log_22_06_2026_21_15_30.txt)
                 string vremenskiSufiks = DateTime.Now.ToString("dd_MM_yyyy_HH_mm_ss");
-
-                // Spajamo tvoju putanju do bin foldera sa unikatnim imenom fajla
                 jedinstvenaPutanjaLoga = $@"C:\Users\strah\source\repos\HCI_PZ2\NetworkService\NetworkService\NetworkService\bin\Log_{vremenskiSufiks}.txt";
 
-                // Eksplicitno kreiranje fajla na disku
                 using (FileStream fs = File.Create(jedinstvenaPutanjaLoga))
                 {
                     using (StreamWriter writer = new StreamWriter(fs))
@@ -99,35 +155,105 @@ namespace NetworkService.ViewModel
             }
         }
 
-        private void StartSimulation()
+        private void StartServer()
         {
-            simulationTimer = new DispatcherTimer();
-            simulationTimer.Interval = TimeSpan.FromSeconds(3); // Osvežavanje na svake 3 sekunde
-            simulationTimer.Tick += SimulationTimer_Tick;
-            simulationTimer.Start();
+            try
+            {
+                server = new TcpListener(IPAddress.Parse("127.0.0.1"), 25675);
+                server.Start();
+
+                listenThread = new Thread(new ThreadStart(ListenForClients));
+                listenThread.IsBackground = true;
+                listenThread.Start();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Greška pri podizanju servera: {ex.Message}");
+            }
         }
 
-        private void SimulationTimer_Tick(object sender, EventArgs e)
+        private void ListenForClients()
         {
-            if (Roads.Count == 0) return;
+            while (true)
+            {
+                try
+                {
+                    TcpClient client = server.AcceptTcpClient();
+                    NetworkStream stream = client.GetStream();
+
+                    byte[] message = new byte[1024];
+                    int bytesRead = stream.Read(message, 0, message.Length);
+                    string incomingData = Encoding.ASCII.GetString(message, 0, bytesRead);
+
+                    if (incomingData == "Need object count")
+                    {
+                        byte[] responseData = Encoding.ASCII.GetBytes(Roads.Count.ToString());
+                        stream.Write(responseData, 0, responseData.Length);
+                    }
+                    else if (incomingData.StartsWith("Entitet_"))
+                    {
+                        string[] parts = incomingData.Split(':');
+                        int entityIndex = int.Parse(parts[0].Split('_')[1]);
+                        double newValue = double.Parse(parts[1]);
+
+                        Application.Current.Dispatcher.Invoke(() =>
+                        {
+                            if (entityIndex >= 0 && entityIndex < Roads.Count)
+                            {
+                                var road = Roads[entityIndex];
+                                road.Value = newValue;
+
+                                UpisiULogFajl(road);
+
+                                // 1. Osvežavanje mrežnog Canvas prikaza
+                                if (NetworkDisplayVM != null && NetworkDisplayVM.CanvasSlots != null)
+                                {
+                                    foreach (var slot in NetworkDisplayVM.CanvasSlots)
+                                    {
+                                        if (slot != null && slot.Road != null && slot.Road.ID == road.ID)
+                                        {
+                                            var privremeniPut = slot.Road;
+                                            slot.Road = null;
+                                            slot.Road = privremeniPut;
+                                        }
+                                    }
+                                }
+
+                                // 2. REŠENJE: Instant osvežavanje grafikona ako je ovaj put trenutno otvoren na njemu
+                                if (MeasurementGraphVM != null && MeasurementGraphVM.SelectedRoad != null)
+                                {
+                                    if (MeasurementGraphVM.SelectedRoad.ID == road.ID)
+                                    {
+                                        MeasurementGraphVM.RefreshGraph();
+                                    }
+                                }
+                            }
+                        });
+                    }
+
+                    stream.Close();
+                    client.Close();
+                }
+                catch (Exception)
+                {
+                }
+            }
+        }
+
+        private void UpisiULogFajl(RoadEntity road)
+        {
             if (string.IsNullOrEmpty(jedinstvenaPutanjaLoga)) return;
 
             try
             {
-                // Otvaramo tačno onaj unikatni fajl koji je napravljen u metodi napraviLog()
                 using (StreamWriter writer = File.AppendText(jedinstvenaPutanjaLoga))
                 {
-                    foreach (var road in Roads)
-                    {
-                        road.Value = random.Next(0, 151);
+                    string typeName = (road.Type != null) ? road.Type.Name : "Unknown";
+                    string roadName = !string.IsNullOrEmpty(road.Name) ? road.Name : "Unnamed";
 
-                        string typeName = (road.Type != null) ? road.Type.Name : "Unknown";
-                        string roadName = !string.IsNullOrEmpty(road.Name) ? road.Name : "Unnamed";
+                    string logLine = $"[{DateTime.Now:dd.MM.yyyy. HH:mm:ss}] ID: {road.ID} | Name: {roadName} | Type: {typeName} | Value: {road.Value:F1}";
 
-                        string logLine = $"[{DateTime.Now:dd.MM.yyyy. HH:mm:ss}] ID: {road.ID} | Name: {roadName} | Type: {typeName} | Value: {road.Value:F1}";
-
-                        writer.WriteLine(logLine);
-                    }
+                    writer.WriteLine(logLine);
                     writer.Flush();
                 }
             }
