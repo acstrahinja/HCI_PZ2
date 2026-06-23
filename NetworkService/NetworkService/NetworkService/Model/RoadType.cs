@@ -1,11 +1,9 @@
-﻿using System;
-
-namespace NetworkService.Model
+﻿namespace NetworkService.Model
 {
     public class RoadType
     {
         public string Name { get; set; }        // "IA" ili "IB"
-        public string ImageSource { get; set; } // Putanja do slike na disku
+        public string ImageSource { get; set; }  // Običan string za putanju
 
         public RoadType() { }
 

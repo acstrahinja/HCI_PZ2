@@ -6,6 +6,10 @@
              mc:Ignorable="d"
              d:DesignHeight="550" d:DesignWidth="780" Background="#F4F6F9">
 
+    <UserControl.InputBindings>
+        <KeyBinding Key="Z" Modifiers="Control" Command="{Binding UndoCommand}" />
+    </UserControl.InputBindings>
+
     <UserControl.Resources>
         <Style x:Key="PlaceholderTextBox" TargetType="TextBox">
             <Setter Property="Height" Value="30"/>
@@ -49,111 +53,199 @@
     </UserControl.Resources>
 
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
 
-        <Border Grid.Row="0" Background="White" CornerRadius="5" Padding="15" Margin="0,0,0,10">
-            <StackPanel>
-                <TextBlock Text="Search Entities" FontSize="14" FontWeight="Bold" Margin="0,0,0,10"/>
-                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                    <RadioButton Content="Search by Type" IsChecked="{Binding SearchByType}" Margin="0,0,20,0"/>
-                    <RadioButton Content="Search by Name" IsChecked="{Binding SearchByName}"/>
+            <Border Grid.Row="0" Background="White" CornerRadius="5" Padding="15" Margin="0,0,0,10">
+                <StackPanel>
+                    <Grid Margin="0,0,0,10">
+                        <TextBlock Text="Search Entities" FontSize="14" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center" Foreground="#2C3E50"/>
+
+                        <Button Content="↩ Undo" Width="70" Height="25" HorizontalAlignment="Right" VerticalAlignment="Center"
+                                Background="#34495E" Foreground="White" FontWeight="SemiBold" FontSize="12" BorderThickness="0"
+                                Command="{Binding UndoCommand}">
+                            <Button.Resources>
+                                <Style TargetType="Button">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}" CornerRadius="3">
+                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#2C3E50"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Resources>
+                        </Button>
+                    </Grid>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                        <RadioButton Content="Search by Type" IsChecked="{Binding SearchByType}" Margin="0,0,20,0"/>
+                        <RadioButton Content="Search by Name" IsChecked="{Binding SearchByName}"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource PlaceholderTextBox}" Tag="Enter search term here..." Width="350" Margin="0,0,10,0"/>
+                        <Button Command="{Binding SearchCommand}" Content="Search" Width="100" Height="30" Margin="0,0,5,0" Background="#34495E" Foreground="White" BorderThickness="0"/>
+                        <Button Command="{Binding ResetSearchCommand}" Content="Reset" Width="100" Height="30" Background="#BDC3C7" BorderThickness="0"/>
+                    </StackPanel>
+                    <TextBlock Style="{StaticResource HelpTextStyle}" Text="Hint: Select whether you want to search by precise type code or road name above, then click Search." Margin="0,5,0,0"/>
                 </StackPanel>
-                <StackPanel Orientation="Horizontal">
-                    <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource PlaceholderTextBox}" Tag="Enter search term here..." Width="350" Margin="0,0,10,0"/>
-                    <Button Command="{Binding SearchCommand}" Content="Search" Width="100" Height="30" Margin="0,0,5,0" Background="#34495E" Foreground="White" BorderThickness="0"/>
-                    <Button Command="{Binding ResetSearchCommand}" Content="Reset" Width="100" Height="30" Background="#BDC3C7" BorderThickness="0"/>
-                </StackPanel>
-                <TextBlock Style="{StaticResource HelpTextStyle}" Text="Hint: Select whether you want to search by precise type code or road name above, then click Search." Margin="0,5,0,0"/>
-            </StackPanel>
-        </Border>
+            </Border>
 
-        <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="280"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="280"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
 
-            <Border Grid.Column="0" Background="White" CornerRadius="5" Padding="15" Margin="0,0,10,0">
-                <Grid>
-                    <StackPanel>
-                        <TextBlock Text="Add New Road" FontSize="16" FontWeight="Bold" Margin="0,0,0,15"/>
+                <Border Grid.Column="0" Background="White" CornerRadius="5" Padding="15" Margin="0,0,10,0">
+                    <Grid>
+                        <StackPanel>
+                            <TextBlock Text="Add New Road" FontSize="16" FontWeight="Bold" Margin="0,0,0,15"/>
 
-                        <TextBlock Text="ID:" FontWeight="SemiBold" Margin="0,5,0,2"/>
-                        <TextBox Text="{Binding NewRoadId, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource PlaceholderTextBox}" Tag="e.g. 101 (Must be integer ID)" Margin="0,0,0,10"/>
+                            <TextBlock Text="ID:" FontWeight="SemiBold" Margin="0,5,0,2"/>
+                            <TextBox Text="{Binding NewRoadId, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource PlaceholderTextBox}" Tag="e.g. 101 (Must be integer ID)" Margin="0,0,0,10"/>
 
-                        <TextBlock Text="Name:" FontWeight="SemiBold" Margin="0,5,0,2"/>
-                        <TextBox Text="{Binding NewRoadName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource PlaceholderTextBox}" Tag="e.g. Highway A1" Margin="0,0,0,10"/>
+                            <TextBlock Text="Name:" FontWeight="SemiBold" Margin="0,5,0,2"/>
+                            <TextBox Text="{Binding NewRoadName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource PlaceholderTextBox}" Tag="e.g. Highway A1" Margin="0,0,0,10"/>
 
-                        <TextBlock Text="Road Type:" FontWeight="SemiBold" Margin="0,5,0,2"/>
-                        <ComboBox ItemsSource="{Binding RoadTypes}" SelectedItem="{Binding SelectedRoadType}" DisplayMemberPath="Name" Height="30" VerticalContentAlignment="Center" Margin="0,0,0,20"/>
+                            <TextBlock Text="Road Type:" FontWeight="SemiBold" Margin="0,5,0,2"/>
+                            <ComboBox ItemsSource="{Binding RoadTypes}" SelectedItem="{Binding SelectedRoadType}" DisplayMemberPath="Name" Height="30" VerticalContentAlignment="Center" Margin="0,0,0,20"/>
 
-                        <Button Command="{Binding AddRoadCommand}" Content="Add Entity" Height="35" Background="#2ECC71" Foreground="White" BorderThickness="0" FontWeight="Bold"/>
+                            <Button Command="{Binding AddRoadCommand}" Content="Add Entity" Height="35" Background="#2ECC71" Foreground="White" BorderThickness="0" FontWeight="Bold"/>
 
-                        <StackPanel Margin="0,20,0,0">
-                            <TextBlock Style="{StaticResource HelpTextStyle}" Text="SHORTCUTS:" FontWeight="Bold" Margin="0,0,0,2"/>
-                            <TextBlock Style="{StaticResource HelpTextStyle}" Text="CTRL + E - Entities view"/>
-                            <TextBlock Style="{StaticResource HelpTextStyle}" Text="CTRL + D - Network display"/>
-                            <TextBlock Style="{StaticResource HelpTextStyle}" Text="CTRL + H - Toggle system help"/>
+                            <StackPanel Margin="0,20,0,0">
+                                <TextBlock Style="{StaticResource HelpTextStyle}" Text="SHORTCUTS:" FontWeight="Bold" Margin="0,0,0,2"/>
+                                <TextBlock Style="{StaticResource HelpTextStyle}" Text="CTRL + E - Entities view"/>
+                                <TextBlock Style="{StaticResource HelpTextStyle}" Text="CTRL + D - Network display"/>
+                                <TextBlock Style="{StaticResource HelpTextStyle}" Text="CTRL + H - Toggle system help"/>
+                            </StackPanel>
                         </StackPanel>
+                    </Grid>
+                </Border>
+
+                <Grid Grid.Column="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <DataGrid Grid.Row="0" ItemsSource="{Binding Roads}" SelectedItem="{Binding SelectedRoad}" CanUserAddRows="False" AutoGenerateColumns="False" Background="White" BorderBrush="#BDC3C7">
+                        <DataGrid.RowStyle>
+                            <Style TargetType="DataGridRow">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsInAlarm}" Value="True">
+                                        <Setter Property="Background" Value="#FFD6D6"/>
+                                        <Setter Property="Foreground" Value="#C0392B"/>
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGrid.RowStyle>
+
+                        <DataGrid.Columns>
+                            <DataGridCheckBoxColumn Header="Select" Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" Width="55"/>
+                            <DataGridTextColumn Header="ID" Binding="{Binding ID}" IsReadOnly="True" Width="60"/>
+                            <DataGridTextColumn Header="Road Name" Binding="{Binding Name}" IsReadOnly="True" Width="*"/>
+                            <DataGridTextColumn Header="Road Type" Binding="{Binding Type.Name}" IsReadOnly="True" Width="100"/>
+                            <DataGridTextColumn Header="Value" Binding="{Binding Value}" IsReadOnly="True" Width="100"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <Grid Grid.Row="1" Margin="0,12,5,5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Column="0" 
+                                   Style="{StaticResource HelpTextStyle}" 
+                                   Text="Hint: To delete roads, check the boxes inside the table rows and then use the action button." 
+                                   VerticalAlignment="Center" 
+                                   TextWrapping="Wrap" 
+                                   Margin="0,0,15,0"/>
+
+                        <Button Grid.Column="1" 
+                                Command="{Binding DeleteRoadCommand}" 
+                                Content="Delete Selected" 
+                                Width="140" 
+                                Height="32" 
+                                Background="#E74C3C" 
+                                Foreground="White" 
+                                BorderThickness="0" 
+                                FontWeight="Bold"/>
+                    </Grid>
+                </Grid>
+            </Grid>
+        </Grid>
+
+        <Grid Visibility="{Binding IsConfirmDeleteVisible}" Background="#7F000000">
+            <Border Width="380" Height="160" Background="White" CornerRadius="5" BorderBrush="#BDC3C7" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Grid Margin="15">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Text="Action Confirmation" FontSize="14" FontWeight="Bold" Foreground="#2C3E50"/>
+                    <TextBlock Grid.Row="1" Text="Are you sure you want to permanently delete the selected network entities?" FontSize="12" Foreground="#34495E" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,10"/>
+
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Content="Yes, Delete" Command="{Binding ConfirmDeleteCommand}" Width="100" Height="28" Background="#E74C3C" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,0,8,0"/>
+                        <Button Content="No, Cancel" Command="{Binding CancelDeleteCommand}" Width="90" Height="28" Background="#BDC3C7" Foreground="#2C3E50" BorderThickness="0"/>
                     </StackPanel>
                 </Grid>
             </Border>
+        </Grid>
 
-            <Grid Grid.Column="1">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-
-                <DataGrid Grid.Row="0" ItemsSource="{Binding Roads}" SelectedItem="{Binding SelectedRoad}" CanUserAddRows="False" AutoGenerateColumns="False" Background="White" BorderBrush="#BDC3C7">
-                    <DataGrid.RowStyle>
-                        <Style TargetType="DataGridRow">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsInAlarm}" Value="True">
-                                    <Setter Property="Background" Value="#FFD6D6"/>
-                                    <Setter Property="Foreground" Value="#C0392B"/>
-                                    <Setter Property="FontWeight" Value="SemiBold"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </DataGrid.RowStyle>
-
-                    <DataGrid.Columns>
-                        <DataGridCheckBoxColumn Header="Select" Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" Width="55"/>
-                        <DataGridTextColumn Header="ID" Binding="{Binding ID}" IsReadOnly="True" Width="60"/>
-                        <DataGridTextColumn Header="Road Name" Binding="{Binding Name}" IsReadOnly="True" Width="*"/>
-                        <DataGridTextColumn Header="Road Type" Binding="{Binding Type.Name}" IsReadOnly="True" Width="100"/>
-                        <DataGridTextColumn Header="Value" Binding="{Binding Value}" IsReadOnly="True" Width="100"/>
-                    </DataGrid.Columns>
-                </DataGrid>
-
-                <Grid Grid.Row="1" Margin="0,12,5,5">
+        <Grid Visibility="{Binding IsToastVisible}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,20,20">
+            <Border Width="320" Background="{Binding ToastBackground}" CornerRadius="4" Padding="12" BorderThickness="0">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.25"/>
+                </Border.Effect>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <TextBlock Grid.Column="0" 
-                               Style="{StaticResource HelpTextStyle}" 
-                               Text="Hint: To delete roads, check the boxes inside the table rows and then use the action button." 
-                               VerticalAlignment="Center" 
-                               TextWrapping="Wrap" 
-                               Margin="0,0,15,0"/>
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding ToastTitle}" FontSize="12" FontWeight="Bold" Foreground="White"/>
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding ToastType}" FontSize="10" FontWeight="SemiBold" Foreground="White" Opacity="0.85" Margin="0,2,0,4"/>
+                    <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding ToastContent}" FontSize="11" Foreground="White" TextWrapping="Wrap" Margin="0,4,0,10"/>
 
-                    <Button Grid.Column="1" 
-                            Command="{Binding DeleteRoadCommand}" 
-                            Content="Delete Selected" 
-                            Width="140" 
-                            Height="32" 
-                            Background="#E74C3C" 
-                            Foreground="White" 
-                            BorderThickness="0" 
-                            FontWeight="Bold"/>
+                    <Button Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Content="Dismiss" Command="{Binding CloseToastCommand}" HorizontalAlignment="Right" Width="70" Height="22" Background="White" Foreground="#2C3E50" FontWeight="SemiBold" FontSize="11" BorderThickness="0">
+                        <Button.Resources>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="2">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
                 </Grid>
-            </Grid>
+            </Border>
         </Grid>
     </Grid>
 </UserControl>

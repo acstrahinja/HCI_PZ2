@@ -1,6 +1,7 @@
 ﻿using NetworkService.Model;
 using PSI_IUIS___PZ2___početni_projekat;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows;
@@ -13,6 +14,19 @@ using System.Threading;
 
 namespace NetworkService.ViewModel
 {
+    // NOVO: Tipovi akcija koje centralni magacin podržava za poništavanje
+    public enum UndoActionType { Drop, Free, Move, Connect, AddEntity, DeleteEntity }
+
+    // NOVO: Klasa koja drži sve potrebne podatke o izvršenoj akciji
+    public class UndoAction
+    {
+        public UndoActionType Type { get; set; }
+        public int SourceSlot { get; set; }
+        public int TargetSlot { get; set; }
+        public RoadEntity Entity { get; set; }
+        public object Line { get; set; } // Koristi se object radi sprečavanja kružnih referenci
+    }
+
     public class MainWindowViewModel : INotifyPropertyChanged
     {
         private object currentViewModel;
@@ -29,6 +43,9 @@ namespace NetworkService.ViewModel
         public MeasurementGraphViewModel MeasurementGraphVM { get; set; }
 
         public static ObservableCollection<RoadEntity> Roads { get; set; } = new ObservableCollection<RoadEntity>();
+
+        // NOVO: Centralni magacin u koji se guraju sve akcije iz svih ekrana
+        public Stack<UndoAction> UndoStack { get; set; } = new Stack<UndoAction>();
 
         public ICommand NavigationCommand { get; set; }
         public ICommand ToggleHelpCommand { get; set; }
@@ -138,6 +155,8 @@ namespace NetworkService.ViewModel
             try
             {
                 string vremenskiSufiks = DateTime.Now.ToString("dd_MM_yyyy_HH_mm_ss");
+
+                // VRACENO: Tvoja originalna apsolutna putanja
                 jedinstvenaPutanjaLoga = $@"C:\Users\strah\source\repos\HCI_PZ2\NetworkService\NetworkService\NetworkService\bin\Log_{vremenskiSufiks}.txt";
 
                 using (FileStream fs = File.Create(jedinstvenaPutanjaLoga))
@@ -219,7 +238,7 @@ namespace NetworkService.ViewModel
                                     }
                                 }
 
-                                // 2. REŠENJE: Instant osvežavanje grafikona ako je ovaj put trenutno otvoren na njemu
+                                // 2. Instant osvežavanje grafikona ako je ovaj put trenutno otvoren na njemu
                                 if (MeasurementGraphVM != null && MeasurementGraphVM.SelectedRoad != null)
                                 {
                                     if (MeasurementGraphVM.SelectedRoad.ID == road.ID)
@@ -236,6 +255,7 @@ namespace NetworkService.ViewModel
                 }
                 catch (Exception)
                 {
+                    // Ignoriši mrežne prekide simulatora
                 }
             }
         }

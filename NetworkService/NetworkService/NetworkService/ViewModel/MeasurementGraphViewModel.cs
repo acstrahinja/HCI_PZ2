@@ -8,7 +8,9 @@ namespace NetworkService.ViewModel
 {
     public class GraphBar : INotifyPropertyChanged
     {
-        private double height;
+        private double height; // Kod G3 zahteva ovo koristimo kao PREČNIK (Size) kruga
+        private double bottomPosition; // Pomoćno svojstvo za pozicioniranje od dna Canvasa
+        private double leftPosition; // Pomoćno svojstvo za centriranje unutar slota od 80px
         private Brush barColor;
         private double value;
         private string labelX;
@@ -17,6 +19,18 @@ namespace NetworkService.ViewModel
         {
             get { return height; }
             set { height = value; OnPropertyChanged("Height"); }
+        }
+
+        public double BottomPosition
+        {
+            get { return bottomPosition; }
+            set { bottomPosition = value; OnPropertyChanged("BottomPosition"); }
+        }
+
+        public double LeftPosition
+        {
+            get { return leftPosition; }
+            set { leftPosition = value; OnPropertyChanged("LeftPosition"); }
         }
 
         public Brush BarColor
@@ -67,7 +81,6 @@ namespace NetworkService.ViewModel
                     selectedRoad.PropertyChanged += SelectedRoad_PropertyChanged;
                 }
 
-                // Kada korisnik klikne na drugi put, odmah javljamo XAML-u da promeni tekst i visinu linije alarma
                 OnPropertyChanged("AlarmLimitLabel");
                 OnPropertyChanged("AlarmLimitHeight");
 
@@ -75,7 +88,6 @@ namespace NetworkService.ViewModel
             }
         }
 
-        // NOVO: Vraća dinamički tekst za crvenu liniju (npr. "15000 [ALARM]" ili "7000 [ALARM]")
         public string AlarmLimitLabel
         {
             get
@@ -85,15 +97,21 @@ namespace NetworkService.ViewModel
             }
         }
 
-        // NOVO: Računa visinu na kojoj crvena linija treba da se iscrta na Canvasu (u pikselima)
+        // Računanje visine crvene linije alarma (Canvas.Bottom) na bazi G3 matematike
         public double AlarmLimitHeight
         {
             get
             {
                 if (SelectedRoad?.Type == null) return 0;
                 double limit = SelectedRoad.Type.Name == "IA" ? 15000.0 : 7000.0;
-                double scaleFactor = 200.0 / 21000.0; // Prilagođeno T3 skali
-                return limit * scaleFactor;
+
+                // Maksimalni poluprečnik za max vrednost (21000) je 50px (krug 100x100px u Canvasu od 200px)
+                double maxRadius = 50.0;
+                double scaleFactor = maxRadius / 21000.0;
+                double alarmRadius = limit * scaleFactor;
+
+                // Centri su poravnati na Y=100 (od dna), pa alarm raste iz centra nagore za poluprečnik alarma
+                return 100.0 + alarmRadius;
             }
         }
 
@@ -101,10 +119,9 @@ namespace NetworkService.ViewModel
 
         public MeasurementGraphViewModel()
         {
-            // Inicijalno postavljamo prazne crtice na X osu
             for (int i = 0; i < 5; i++)
             {
-                GraphBars.Add(new GraphBar { Height = 0, BarColor = Brushes.Transparent, Value = 0, LabelX = "--:--:--" });
+                GraphBars.Add(new GraphBar { Height = 0, BottomPosition = 100, LeftPosition = 32, BarColor = Brushes.Transparent, Value = 0, LabelX = "--:--:--" });
             }
         }
 
@@ -126,6 +143,8 @@ namespace NetworkService.ViewModel
                 for (int i = 0; i < 5; i++)
                 {
                     GraphBars[i].Height = 0;
+                    GraphBars[i].BottomPosition = 100;
+                    GraphBars[i].LeftPosition = 32;
                     GraphBars[i].BarColor = Brushes.Transparent;
                     GraphBars[i].Value = 0;
                     GraphBars[i].LabelX = "--:--:--";
@@ -135,10 +154,10 @@ namespace NetworkService.ViewModel
 
             var history = SelectedRoad.History;
 
-            // Maksimalna visina prostora na grafu je 200px, a maksimalna vrednost T3 simulatora je 21000
-            double scaleFactor = 200.0 / 21000.0;
+            // Maksimalni poluprečnik je 50px (Maksimalni prečnik kruga je 100px)
+            double maxRadius = 50.0;
+            double scaleFactor = maxRadius / 21000.0;
 
-            // Forsiramo osvežavanje visine linije alarma kada stignu novi podaci
             OnPropertyChanged("AlarmLimitHeight");
 
             for (int i = 0; i < 5; i++)
@@ -148,11 +167,21 @@ namespace NetworkService.ViewModel
                     double val = history[i].Item1;
                     DateTime time = history[i].Item2;
 
+                    // Računamo poluprečnik i prečnik za trenutnu vrednost
+                    double radius = val * scaleFactor;
+                    double diameter = radius * 2.0;
+
+                    // ZAHTEV G3: Centri moraju biti poravnati paralelno po X-osi tačno na sredini (Y = 100 odozdo).
+                    // Da bi centar kruga bio na 100, njegova donja ivica (Canvas.Bottom) se spušta za poluprečnik:
+                    GraphBars[i].BottomPosition = 100.0 - radius;
+
+                    // Centriranje kruga unutar širine slota (80px): leva pozicija je (80 - prečnik) / 2
+                    GraphBars[i].LeftPosition = (80.0 - diameter) / 2.0;
+
                     GraphBars[i].Value = val;
-                    GraphBars[i].Height = val * scaleFactor;
+                    GraphBars[i].Height = diameter; // Prečnik šaljemo u XAML za Width i Height
                     GraphBars[i].LabelX = time.ToString("HH:mm:ss");
 
-                    // ISPRAVLJENO PREMA SPECIFIKACIJI ZA T3: Provera alarma zavisi od tipa puta (IA ili IB)
                     bool isAlarm = false;
                     if (SelectedRoad.Type != null)
                     {
@@ -160,12 +189,14 @@ namespace NetworkService.ViewModel
                     }
 
                     GraphBars[i].BarColor = isAlarm ?
-                        new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E74C3C")) : // Crvena za alarm
-                        new SolidColorBrush((Color)ColorConverter.ConvertFromString("#3498DB"));  // Plava za normalno stanje
+                        new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E74C3C")) :
+                        new SolidColorBrush((Color)ColorConverter.ConvertFromString("#3498DB"));
                 }
                 else
                 {
                     GraphBars[i].Height = 0;
+                    GraphBars[i].BottomPosition = 100;
+                    GraphBars[i].LeftPosition = 32;
                     GraphBars[i].BarColor = Brushes.Transparent;
                     GraphBars[i].Value = 0;
                     GraphBars[i].LabelX = "--:--:--";
